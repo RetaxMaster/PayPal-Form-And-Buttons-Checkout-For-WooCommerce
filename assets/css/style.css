@@ -1,0 +1,181 @@
+/* Quitamos el padding al contenedor de WordPress para que podamos abarcar todo el menú */
+
+#wpcontent {
+    padding: 0 !important;
+}
+
+/* ->Quitamos el padding al contenedor de WordPress para que podamos abarcar todo el menú */
+
+/* Ponemos nuestros estilos a nuestro propio contenedor */
+
+.rm_paypal_checkout {
+    padding: 2em;
+    display: inline-block;
+    width: 100%;
+}
+
+/* ->Ponemos nuestros estilos a nuestro propio contenedor */
+
+/* Estilos generales */
+
+h1, h2, h3, h4, h5, h6 {
+    color: #727276;
+}
+
+h1 {
+    font-size: 1.8em;
+}
+
+p {
+    color: #888;
+    margin: 0 !important;
+}
+
+ul {
+    padding: 0;
+}
+
+textarea {
+    min-height: 100px;
+}
+
+fieldset {
+    display: inline-block;
+    width: 100%;
+    margin: 20px 0;
+}
+
+hr {
+    border-top: 1px dashed #ccc;
+}
+
+fieldset legend {
+    font-weight: bold;
+    font-size: 1em;
+}
+
+.card {
+    box-shadow: 0 0 4px 0 rgba(0, 0, 0, .08), 0 2px 4px 0 rgba(0, 0, 0, .12);
+    border-radius: 3px;
+    background: #fff;
+    margin: 0 !important;
+    min-width: unset !important;
+    max-width: unset !important;
+    -webkit-border-radius: 3px;
+    -moz-border-radius: 3px;
+    -ms-border-radius: 3px;
+    -o-border-radius: 3px;
+}
+
+.config-container {
+    display: block;
+    max-width: 1000px !important;
+    padding: 25px;
+    margin: auto !important;
+}
+
+.alert {
+    display: block;
+    max-width: 1000px !important;
+    margin: auto !important;
+}
+
+/* ->Estilos generales */
+
+/* Imágenes */
+
+.image-container {
+    display: flex;
+    width: 100%;
+    justify-content: center;
+    align-items: center;
+}
+
+.image-container img,
+.image-container .image-test {
+    width: 100%;
+}
+
+/* ->Imágenes */
+
+/* Botones */
+
+.vertical-align {
+    display: flex !important;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+.vertical-align.align-left {
+    justify-content: flex-start;
+}
+
+.vertical-align.align-right {
+    justify-content: flex-end;
+}
+
+.button-container {
+    display: flex;
+    flex-wrap: wrap;
+    width: 100%;
+    justify-content: center;
+}
+
+.button-container.align-left {
+    justify-content: flex-start;
+}
+
+.button-container.align-right {
+    justify-content: flex-end;
+}
+
+.button-container.align-between {
+    justify-content: space-between;
+}
+
+.big-button {
+    display: inline-block;
+    padding: 20px 70px;
+    font-size: 21px;
+    border-radius: 5px;
+}
+
+/* ->Botones */
+
+/* Cambiando botones de bootstrap */
+
+.btn-primary {
+    color: #fff;
+    background-color: #3580de;
+    border-color: #3580de;
+}
+
+.btn-primary:hover {
+    color: #fff;
+    background-color: #3688eb;
+    border-color: #3688eb;
+}
+
+.btn-primary:not(:disabled):not(.disabled).active,
+.btn-primary:not(:disabled):not(.disabled):active,
+.show>.btn-primary.dropdown-toggle {
+    color: #fff;
+    background-color: #3076cc;
+    border-color: #3076cc;
+}
+
+.btn-primary:not(:disabled):not(.disabled).active:focus,
+.btn-primary:not(:disabled):not(.disabled):active:focus,
+.show>.btn-primary.dropdown-toggle:focus {
+    box-shadow: 0 0 0 0.2rem rgba(48, 118, 204, 0.5);
+}
+
+.btn-primary.focus,
+.btn-primary:focus {
+    color: #fff;
+    background-color: #3076cc;
+    border-color: #3076cc;
+    box-shadow: 0 0 0 0.2rem rgba(48, 118, 204, 0.5);
+}
+
+/* ->Cambiando botones de bootstrap */
