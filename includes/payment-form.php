@@ -1,5 +1,5 @@
 <div <?= $form_attrs ?>>
-    <!-- <div class="row justify-content-center">
+    <div class="row justify-content-center">
         <div class="col-12">
             <form action="#" method="post" class="card p-4" id="card-form">
                 <h2>Completa tu pedido</h2>
@@ -37,7 +37,7 @@
 
                 </div>
 
-                <p> Tu periodo de prueba termina el Jueves 11 de Junio del 2020 a las 5:42p.m y a partir de ese momento cobraremos la primera suscricpión por $49.00 MXN. El cargo es automático, si no deseas continuar con la suscripción, deberás darla de baja desde tu cuenta antes del día Jueves 11 de Junio del 2020 a las 5:42p.m. </p>
+                <p>Tu periodo de prueba termina el Jueves 11 de Junio del 2020 a las 5:42p.m y a partir de ese momento cobraremos la primera suscricpión por $49.00 MXN. El cargo es automático, si no deseas continuar con la suscripción, deberás darla de baja desde tu cuenta antes del día Jueves 11 de Junio del 2020 a las 5:42p.m. </p>
 
                 <div class="button-container">
                     <button class="btn btn-primary next-button" type="submit" id="pay-button">Confirmar pedido</button>
@@ -45,10 +45,5 @@
 
             </form>
         </div>
-    </div> -->
-
-    <div id="paypal-buttons">
-        
     </div>
-
 </div>

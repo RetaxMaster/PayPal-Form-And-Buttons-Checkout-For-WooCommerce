@@ -1,8 +1,5 @@
-$ = jQuery;
-
 $(document).ready(function(){
 
-    alert("Rendering")
     paypal.Buttons({
         createOrder: function(data, actions) {
             // This function sets up the details of the transaction, including the amount and line item details.
@@ -21,6 +18,6 @@ $(document).ready(function(){
               alert('Transaction completed by ' + details.payer.name.given_name);
             });
           }
-    }).render('#paypal-buttons');
+    }).render('#rm_paypal_buttons');
 
 });

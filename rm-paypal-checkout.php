@@ -40,6 +40,8 @@ add_action( 'admin_init', 'check_some_other_plugin' );
 // Determinará si la función ya fue llamada para no duplicar los enqueue en caso de haber dos shortcodes que la llamen
 $calledPluginScripts = false;
 
+require("classes/PayPal.php");
+
 // Seaparador del menú
 function add_admin_menu_separator($position) {
     global $menu;
@@ -59,6 +61,7 @@ function add_admin_menu_separator($position) {
 function custom_menu() {
 
     add_menu_page('PayPal Checkout', 'PayPal Checkout', 'edit_posts', 'rm_paypal_checkout', function() {
+        require("controllers/admin-menu.php");
         require("includes/admin-menu.php");
     }, 'dashicons-media-spreadsheet', 59);
     
@@ -78,16 +81,53 @@ function load_assets($hook) {
     wp_enqueue_script('popper', "https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js", ['jquery'], "1.16.0", true);
     wp_enqueue_script('bootstrap', "https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js", ['popper'], "4.5.0", true);
 
+    wp_enqueue_script('scripts',  plugins_url('assets/js/scripts.js', __FILE__), ['jquery'], "1.0", true);
+    wp_enqueue_script('admin',  plugins_url('assets/js/admin.js', __FILE__), ['scripts'], "1.0", true);
+
 }
 
 // Añade los estilos y scripts para el front
 function add_plugin_scripts() {
 
     global $calledPluginScripts;
-    $calledPluginScripts = true;
 
-    wp_enqueue_script('paypal_sdk', "https://www.paypal.com/sdk/js?client-id=AaDMNVwbNPRd-TQbtltp-Z_ZGbhRcaRPRf2SXtTnUnc1gs-Gz9yOxaO3r71spFzc1fn1kLgK6qzlRfOd&locale=es_MX", [], null, true);
-    wp_enqueue_script('card_form_validation', plugins_url('assets/js/validation.js', __FILE__), ['jquery'], "1.0", true);
+    if (!$calledPluginScripts) {
+        $calledPluginScripts = true;
+    
+        wp_enqueue_script('paypal_sdk', "https://www.paypal.com/sdk/js?client-id=AaDMNVwbNPRd-TQbtltp-Z_ZGbhRcaRPRf2SXtTnUnc1gs-Gz9yOxaO3r71spFzc1fn1kLgK6qzlRfOd&locale=es_MX", [], null, true);
+    
+        wp_enqueue_script('sweetalert2', "https://cdn.jsdelivr.net/npm/sweetalert2@9", [], "1.1", true);
+        wp_enqueue_script('promise-polyfill', "https://cdn.jsdelivr.net/npm/promise-polyfill", [], "1.1", true);
+        wp_enqueue_script('scripts',  plugins_url('assets/js/scripts.js', __FILE__), ['jquery'], "1.0", true);
+    
+        if (get_integration_type() == "basic") {
+            wp_enqueue_script('basic_paypal_checkout', plugins_url('assets/js/basic_paypal_checkout.js', __FILE__), ['scripts'], "1.0", true);
+        }
+        else {
+            wp_enqueue_script('input_card_sanitize', plugins_url('assets/js/input_card_sanitize.js', __FILE__), ['scripts'], "1.0", true);
+            wp_enqueue_script('advanced_paypal_checkout', plugins_url('assets/js/advanced_paypal_checkout.js', __FILE__), ['scripts'], "1.0", true);
+
+            try {
+                $paypal = new PayPal();
+                $client_token = $paypal->generateClientToken();
+                $error = "";
+            } catch (\Exception $e) {
+                $client_token = null;
+                $error = $e->getMessage();
+            }
+
+            wp_localize_script('advanced_paypal_checkout', 'paypal', array(
+                //'url'    => rest_url( '/delete/cart' ),
+                'nonce'  => wp_create_nonce("wp_rest"),
+                'client_token' => $client_token,
+                'error' => $error,
+                'is_admin' => true // TODO: Investigar como verificar si un usuario es admin, is_admin() no funcionó
+
+            ));
+        }
+    }
+
+
 }
 
 // Guarda los datos enviados del menú
@@ -108,23 +148,113 @@ function save_paypal_keys() {
         return;
     }
 
+    // Guardado del tipo de integración
+    
+    if (isset($_POST['BasicIntegration']))
+        update_option('rm_paypal_checkout_basic_integration', "checked");
+    else
+        update_option('rm_paypal_checkout_basic_integration', "");
+    
+    if (isset($_POST['AdvancedIntegration']))
+        update_option('rm_paypal_checkout_advanced_integration', "checked");
+    else
+        update_option('rm_paypal_checkout_advanced_integration', "");
+
+    if (isset($_POST['InProduction']))
+        update_option('rm_paypal_checkout_production_mode', "checked");
+    else
+        update_option('rm_paypal_checkout_production_mode', "");
+    
+    // -> Guardado del tipo de integración
+
+    // Guardado de las credenciales basicas de prueba
+    
+    // Nos aseguramos de que hay información que guardar.
+    if (isset($_POST['sandboxAccount'])) {
+        $value = sanitize_text_field($_POST['sandboxAccount']);
+        update_option('rm_paypal_checkout_s_Account', $value);
+    }
+
+    // Nos aseguramos de que hay información que guardar.
+    if (isset($_POST['clientId'])) {
+        $value = sanitize_text_field($_POST['clientId']);
+        update_option('rm_paypal_checkout_s_clientId', $value);
+    }
+
+    // Nos aseguramos de que hay información que guardar.
+    if (isset($_POST['secret'])) {
+        $value = sanitize_text_field($_POST['secret']);
+        update_option('rm_paypal_checkout_s_secret', $value);
+    }
+    
+    // -> Guardado de las credenciales basicas de prueba
+
+    // Guardado de las credenciales avanzadas de prueba
+    
     // Nos aseguramos de que hay información que guardar.
     if (isset($_POST['username'])) {
         $value = sanitize_text_field($_POST['username']);
-        update_option('rm_paypal_checkout_username', $value);
+        update_option('rm_paypal_checkout_s_username', $value);
     }
 
     // Nos aseguramos de que hay información que guardar.
     if (isset($_POST['password'])) {
         $value = sanitize_text_field($_POST['password']);
-        update_option('rm_paypal_checkout_password', $value);
+        update_option('rm_paypal_checkout_s_password', $value);
     }
 
     // Nos aseguramos de que hay información que guardar.
     if (isset($_POST['signature'])) {
         $value = sanitize_text_field($_POST['signature']);
-        update_option('rm_paypal_checkout_signature', $value);
+        update_option('rm_paypal_checkout_s_signature', $value);
     }
+    
+    // -> Guardado de las credenciales avanzadas de prueba
+
+    // Guardado de las credenciales basicas de producción
+    
+    // Nos aseguramos de que hay información que guardar.
+    if (isset($_POST['p-Account'])) {
+        $value = sanitize_text_field($_POST['p-Account']);
+        update_option('rm_paypal_checkout_p_Account', $value);
+    }
+
+    // Nos aseguramos de que hay información que guardar.
+    if (isset($_POST['p-clientId'])) {
+        $value = sanitize_text_field($_POST['p-clientId']);
+        update_option('rm_paypal_checkout_p_clientId', $value);
+    }
+
+    // Nos aseguramos de que hay información que guardar.
+    if (isset($_POST['p-secret'])) {
+        $value = sanitize_text_field($_POST['p-secret']);
+        update_option('rm_paypal_checkout_p_secret', $value);
+    }
+    
+    // -> Guardado de las credenciales basicas de producción
+
+    // Guardado de las credenciales avanzadas de producción
+    
+    // Nos aseguramos de que hay información que guardar.
+    if (isset($_POST['p-username'])) {
+        $value = sanitize_text_field($_POST['p-username']);
+        update_option('rm_paypal_checkout_p_username', $value);
+    }
+
+    // Nos aseguramos de que hay información que guardar.
+    if (isset($_POST['p-password'])) {
+        $value = sanitize_text_field($_POST['p-password']);
+        update_option('rm_paypal_checkout_p_password', $value);
+    }
+
+    // Nos aseguramos de que hay información que guardar.
+    if (isset($_POST['p-signature'])) {
+        $value = sanitize_text_field($_POST['p-signature']);
+        update_option('rm_paypal_checkout_p_signature', $value);
+    }
+    
+    // -> Guardado de las credenciales avanzadas de producción
+
 
     // Obtenemos la url de retorno sanitizada
     $url = sanitize_text_field(
@@ -139,45 +269,94 @@ function save_paypal_keys() {
 
 }
 
+// Obtiene el tipo de integración con el que el usuario está trabajando
+function get_integration_type() {
+    $basic_integration = get_option("rm_paypal_checkout_basic_integration", "checked");
+    return $basic_integration == "checked" ? "basic" : "advanced";
+}
+
 // Crea el shortcode para insertar el formulario de cobro
 function rm_add_paypal_form($attrs) {
 
-    global $calledPluginScripts;
-    if(!$calledPluginScripts) add_plugin_scripts();
+    add_plugin_scripts();
 
-    $form_attrs = $attrs["attrs"] ?? "class='col-12 col-sm-6 mb-4'";
-    require("includes/payment-form.php");
+    if (get_integration_type() == "advanced") {
+        $form_attrs = $attrs["attrs"] ?? "class='col-12 col-sm-6 mb-4'";
+        require("includes/payment-form.php");
+    }
+    else {
+        require("includes/warning-using-basic.php");
+    }
+
 }
 
 // Crea el shortcode para insertar el carrito de compras
 function rm_add_paypal_cart($attrs) {
-    $cart_attrs = $attrs["attrs"] ?? "class='col-12 col-sm-6 mb-4'";
-    require("includes/cart.php");
+
+    add_plugin_scripts();
+
+    if (get_integration_type() == "advanced") {
+        $cart_attrs = $attrs["attrs"] ?? "class='col-12 col-sm-6 mb-4'";
+        require("includes/cart.php");
+    }
+    else {
+        require("includes/warning-using-basic.php");
+    }
+
 }
 
 // Crea el shortcode para insertar el carrito de compras junto al formulario de cobro
 function rm_add_paypal_shipment($attrs) {
 
-    global $calledPluginScripts;
-    if(!$calledPluginScripts) add_plugin_scripts();
+    add_plugin_scripts();
 
-    $ship_attrs = $attrs["attrs"] ?? "class='col-12 col-sm-6 mb-4'";
-    require("includes/shipment.php");
+    if (get_integration_type() == "advanced") {
+        $ship_attrs = $attrs["attrs"] ?? "class='col-12 col-sm-6 mb-4'";
+        require("includes/shipment.php");
+    }
+    else {
+        require("includes/warning-using-basic.php");
+    }
 
 }
 
 // Crea el shortcode para insertar el carrito de compras junto al formulario de cobro
 function rm_add_paypal_all($attrs) {
 
-    global $calledPluginScripts;
-    if(!$calledPluginScripts) add_plugin_scripts();
+    add_plugin_scripts();
 
-    $cart_attrs = $attrs["cart_attrs"] ?? "class='col-12 col-sm-6 mb-4'";
-    $form_attrs = $attrs["form_attrs"] ?? "class='col-12 col-sm-6 mb-4'";
-    $ship_attrs = $attrs["ship_attrs"] ?? "class='col-12 col-sm-6 mb-4'";
-    require("includes/all.php");
+    if (get_integration_type() == "advanced") {
+
+        $cart_attrs = $attrs["cart_attrs"] ?? "class='col-12 col-sm-6 mb-4'";
+        $form_attrs = $attrs["form_attrs"] ?? "class='col-12 col-sm-6 mb-4'";
+        $ship_attrs = $attrs["ship_attrs"] ?? "class='col-12 col-sm-6 mb-4'";
+        require("includes/all.php");
+    }
+    else {
+        require("includes/warning-using-basic.php");
+    }
 
 }
+
+// Crea el shortcode para renderizar los botones de PayPal
+function rm_add_paypal_render_buttons($attrs) {
+
+    add_plugin_scripts();
+    
+    if (get_integration_type() == "basic") {
+
+        $render_attrs = $attrs["attrs"] ?? "class='col-12 col-sm-6 mb-4'";
+        require("includes/render-buttons.php");
+
+    }
+    else {
+        require("includes/warning-using-advanced.php");
+    }
+
+}
+
+// Añade los endpoints para procesamientos con Ajax
+require("functions/ajax_endpoints.php");
 
 add_action('admin_enqueue_scripts', 'load_assets');
 add_action('admin_menu', 'custom_menu');
@@ -189,6 +368,7 @@ if(!is_admin()) {
     add_shortcode('rm_paypal_cart', 'rm_add_paypal_cart');
     add_shortcode('rm_paypal_shipment', 'rm_add_paypal_shipment');
     add_shortcode('rm_paypal_all', 'rm_add_paypal_all');
+    add_shortcode('rm_paypal_render_buttons', 'rm_add_paypal_render_buttons');
 
 }
 

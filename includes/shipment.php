@@ -1,46 +1,69 @@
 <div <?= $ship_attrs ?>>
     <div class="row justify-content-center">
         <div class="col-12">
-            <form action="#" method="post" class="card p-4" id="card-form">
+            <form action="#" method="post" class="card p-4" id="shipment-form">
                 <h2>Envío</h2>
-                <p>Para completar la suscripción a tu plan debes ligar una tarjeta de crédito a tu cuenta. No haremos ningún cargo sino hasta que tu periodo de prueba haya terminado.</p><br>
 
                 <div class="row">
 
-                    <div class="input-group mb-3 col-12">
-                        <div class="input-group-prepend">
-                            <span class="input-group-text"><i class="fas fa-user"></i></span>
-                        </div>
-                        <input type="text" class="form-control" placeholder="Nombre completo" aria-label="Full Name" aria-describedby="HolderName" id="HolderName">
+                    <div class="form-group mb-3 col-12">
+                        <label for="address">Dirección</label>
+                        <input type="text" class="form-control" placeholder="Dirección" id="address" name="address">
+                    </div>
+                    
+                    <div class="form-group mb-3 col-12">
+                        <label for="colonia">Colonia</label>
+                        <input type="text" class="form-control" placeholder="Colonia" id="colonia" name="colonia">
                     </div>
 
-                    <div class="input-group mb-3 col-12">
-                        <div class="input-group-prepend">
-                            <span class="input-group-text"><i class="far fa-credit-card"></i></span>
-                        </div>
-                        <input type="text" class="form-control" placeholder="Número de tarjeta" aria-label="Card number" aria-describedby="CreditCardNumber" id="CreditCardNumber">
+                    <div class="form-group mb-3 col-12">
+                        <label for="city">Ciudad</label>
+                        <input type="text" class="form-control" placeholder="Ciudad" id="city" name="city">
                     </div>
 
-                    <div class="input-group mb-3 col-md-6">
-                        <div class="input-group-prepend">
-                            <span class="input-group-text"><i class="fas fa-key"></i></span>
-                        </div>
-                        <input type="text" class="form-control" placeholder="CVC" aria-label="cvcInput" aria-describedby="cvcInput" id="cvcInput">
+                    <div class="form-group mb-3 col-12 col-sm-6">
+                        <label for="state">Estado</label>
+                        <select id="state" class="form-control" name="state">
+                            <option value="Aguascalientes">Aguascalientes</option>
+                            <option value="Baja California">Baja California</option>
+                            <option value="Baja California Sur">Baja California Sur</option>
+                            <option value="Campeche">Campeche</option>
+                            <option value="Chiapas">Chiapas</option>
+                            <option value="Chihuahua">Chihuahua</option>
+                            <option value="CDMX" selected>Ciudad de México</option>
+                            <option value="Coahuila">Coahuila</option>
+                            <option value="Colima">Colima</option>
+                            <option value="Durango">Durango</option>
+                            <option value="Estado de México">Estado de México</option>
+                            <option value="Guanajuato">Guanajuato</option>
+                            <option value="Guerrero">Guerrero</option>
+                            <option value="Hidalgo">Hidalgo</option>
+                            <option value="Jalisco">Jalisco</option>
+                            <option value="Michoacán">Michoacán</option>
+                            <option value="Morelos">Morelos</option>
+                            <option value="Nayarit">Nayarit</option>
+                            <option value="Nuevo León">Nuevo León</option>
+                            <option value="Oaxaca">Oaxaca</option>
+                            <option value="Puebla">Puebla</option>
+                            <option value="Querétaro">Querétaro</option>
+                            <option value="Quintana Roo">Quintana Roo</option>
+                            <option value="San Luis Potosí">San Luis Potosí</option>
+                            <option value="Sinaloa">Sinaloa</option>
+                            <option value="Sonora">Sonora</option>
+                            <option value="Tabasco">Tabasco</option>
+                            <option value="Tamaulipas">Tamaulipas</option>
+                            <option value="Tlaxcala">Tlaxcala</option>
+                            <option value="Veracruz">Veracruz</option>
+                            <option value="Yucatán">Yucatán</option>
+                            <option value="Zacatecas">Zacatecas</option>
+                        </select>
                     </div>
 
-                    <div class="input-group mb-3 col-md-6">
-                        <div class="input-group-prepend">
-                            <span class="input-group-text"><i class="fas fa-calendar-alt"></i></span>
-                        </div>
-                        <input type="text" class="form-control" placeholder="Fecha de expiración" aria-label="ExpireDate" aria-describedby="expirationDate" id="expirationDate">
+                    <div class="form-group mb-3 col-12 col-sm-6">
+                        <label for="cp">Código postal</label>
+                        <input type="text" class="form-control" placeholder="Código postal" id="cp" name="cp">
                     </div>
 
-                </div>
-
-                <p> Tu periodo de prueba termina el Jueves 11 de Junio del 2020 a las 5:42p.m y a partir de ese momento cobraremos la primera suscricpión por $49.00 MXN. El cargo es automático, si no deseas continuar con la suscripción, deberás darla de baja desde tu cuenta antes del día Jueves 11 de Junio del 2020 a las 5:42p.m. </p>
-
-                <div class="button-container">
-                    <button class="btn btn-primary next-button" type="submit" id="pay-button">Confirmar pedido</button>
                 </div>
 
             </form>

@@ -80,6 +80,10 @@ fieldset legend {
     margin: auto !important;
 }
 
+.hidden {
+    display: none !important;
+}
+
 /* ->Estilos generales */
 
 /* Imágenes */
