@@ -2,12 +2,12 @@ $(document).ready(function(){
     
     //Verificar inputs
 
-    $("#card-form input").on("focus", function () {
+    $("#rm-paypal-checkout-card-form input").on("focus", function () {
         $(this).removeClass("is-invalid");
         //$(this).attr("placeholder", "");
     });
 
-    $("#card-form input").on("blur", function () {
+    $("#rm-paypal-checkout-card-form input").on("blur", function () {
         if ($(this).val() == "") {
             $("span.card-errors").text("");
         }
@@ -15,7 +15,7 @@ $(document).ready(function(){
 
     //->Verificar inputs
 
-    $("#card-form input").on("focus", function () {
+    $("#rm-paypal-checkout-card-form input").on("focus", function () {
         $(this).removeClass("is-invalid");
     });
 

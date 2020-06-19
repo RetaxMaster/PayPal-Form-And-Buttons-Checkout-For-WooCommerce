@@ -46,11 +46,25 @@ class PayPal {
         curl_setopt($ch, CURLOPT_URL, $url);
         $result = curl_exec($ch);
         if (curl_errno($ch)) {
-            return 'Error:' . curl_error($ch);
+            return 'Error: ' . curl_error($ch);
         }
     
         curl_close($ch);
         return ($responseType == "array") ? json_decode($result, true) : $result;
+    }
+
+    // Arroja una nueva excepción dependiendo de la respuesta de error de PayPal
+    private static function throwException($paypal_response) : void {
+
+        if (isset($paypal_response["rm_error_message"]))
+            $exception = $paypal_response["rm_error_message"];
+        else if (isset($paypal_response["message"]))
+            $exception = $paypal_response["message"];
+        else if (isset($paypal_response["error_description"]))
+            $exception = $paypal_response["error_description"];
+
+        throw new Exception($exception, 1);
+
     }
 
     // Verifica si el usuario está usando el entorno de pruebas o de producción
@@ -70,7 +84,8 @@ class PayPal {
         $base = self::$APIDomain;
 
         self::$endpoints = array(
-            "get_access_token" => $base . "/v1/oauth2/token"
+            "get_access_token" => $base . "/v1/oauth2/token",
+            "get_client_token" => $base . "/v1/identity/generate-token"
         );
 
     }
@@ -94,6 +109,11 @@ class PayPal {
 
     }
 
+    // Devuleve el client id de PayPal
+    public static function getClientId() {
+        return self::getPayPalCredentials()["client_id"];
+    }
+
     // Establece las API Keys de PayPal
     private static function setAPIKeys() : void {
 
@@ -111,11 +131,18 @@ class PayPal {
         );
 
         $response = self::sendCurl(self::$endpoints["get_access_token"], "post", $data, "array", $extra);
-        if (!is_array($response) || !isset($response["access_token"])) throw new Exception("Credenciales incorrectas", 1);
+
+        if (!is_array($response)) self::throwException([
+            "rm_error_message" => $response
+        ]);
+
+        if (!isset($response["access_token"])) self::throwException($response);
+
         self::$accessToken = $response["access_token"];
 
     }
 
+    // Establece las configuraciones iniciales dependiendo del ambiente que el usuario haya elegido
     public static function setupEnvironment() : void {
         // Establece la URL base para mandar las solicitudes
         self::setAPIDomain();
@@ -128,8 +155,31 @@ class PayPal {
     }
 
     // Genera el client token para el comprado
-    public function generateClientToken() {
-        return self::$accessToken;
+    public function generateClientToken() : string {
+
+        // Generar un client token significa registrar a un nuevo cliente en PayPal, el customer_id que le pasamos debe ser siempre el mismo para tal cliente/usuario del sitio web, PayPal se encargará de devolvernos el token con su tiempo de validez en segundos, este token es importante de incluir en la librería de JavaScript del usuario si se están haciendo cargos con un formulario de tarjetas personalizado NOTE: En esta ocasión estamos haciendo cobros sin importar el cliente así que el customer_id será un numero random
+
+        $data = array(
+            "customer_id" => time()
+        );
+
+        $extra = array(
+            "headers" => array(
+                "Accept-Language: es_MX", 
+                "Content-Type: application/json",
+                "Authorization: Bearer " . self::$accessToken
+            )
+        );
+
+        $response = self::sendCurl(self::$endpoints["get_client_token"], "post", $data, "array", $extra);
+
+        if (!is_array($response)) self::throwException([
+            "rm_error_message" => $response
+        ]);
+
+        if (!isset($response["client_token"])) self::throwException($response);
+
+        return $response["client_token"];
     }
 
 

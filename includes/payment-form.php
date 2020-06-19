@@ -1,7 +1,7 @@
 <div <?= $form_attrs ?>>
     <div class="row justify-content-center">
         <div class="col-12">
-            <form action="#" method="post" class="card p-4" id="card-form">
+            <form class="card p-4" id="rm-paypal-checkout-card-form">
                 <h2>Completa tu pedido</h2>
                 <p>Para completar la suscripción a tu plan debes ligar una tarjeta de crédito a tu cuenta. No haremos ningún cargo sino hasta que tu periodo de prueba haya terminado.</p><br>
 
@@ -42,6 +42,14 @@
                 <div class="button-container">
                     <button class="btn btn-primary next-button" type="submit" id="pay-button">Confirmar pedido</button>
                 </div>
+
+                <div class="or">
+                    <span class="dashed"></span>
+                    <span>o</span>
+                    <span class="dashed"></span>
+                </div>
+
+                <div id="rm_paypal_buttons"></div>
 
             </form>
         </div>

@@ -86,26 +86,54 @@ function load_assets($hook) {
 
 }
 
-// Añade los estilos y scripts para el front
+// Añade los estilos para el front
+function add_plugin_styles() {
+
+    wp_enqueue_style('rm_paypal_checkout_styles', plugins_url('assets/css/advanced.css', __FILE__), [], "1.0");
+
+}
+
+// Añade los scripts para el front
 function add_plugin_scripts() {
 
-    global $calledPluginScripts;
+    $client_id = PayPal::getClientId();
 
-    if (!$calledPluginScripts) {
-        $calledPluginScripts = true;
+    wp_enqueue_script('paypal_sdk', "https://www.paypal.com/sdk/js?components=hosted-fields,buttons&client-id=$client_id", [], null, false);
+
+    // Agrego los scripts base
+    wp_enqueue_script('sweetalert2', "https://cdn.jsdelivr.net/npm/sweetalert2@9", [], "1.1", true);
+    wp_enqueue_script('promise-polyfill', "https://cdn.jsdelivr.net/npm/promise-polyfill", [], "1.1", true);
+    wp_enqueue_script('rm_paypal_checkout_scripts',  plugins_url('assets/js/scripts.js', __FILE__), ['jquery', 'paypal_sdk'], "1.0", true); // <- Se encargará de cargar el script de PayPal
     
-        wp_enqueue_script('paypal_sdk', "https://www.paypal.com/sdk/js?client-id=AaDMNVwbNPRd-TQbtltp-Z_ZGbhRcaRPRf2SXtTnUnc1gs-Gz9yOxaO3r71spFzc1fn1kLgK6qzlRfOd&locale=es_MX", [], null, true);
-    
-        wp_enqueue_script('sweetalert2', "https://cdn.jsdelivr.net/npm/sweetalert2@9", [], "1.1", true);
-        wp_enqueue_script('promise-polyfill', "https://cdn.jsdelivr.net/npm/promise-polyfill", [], "1.1", true);
-        wp_enqueue_script('scripts',  plugins_url('assets/js/scripts.js', __FILE__), ['jquery'], "1.0", true);
-    
-        if (get_integration_type() == "basic") {
-            wp_enqueue_script('basic_paypal_checkout', plugins_url('assets/js/basic_paypal_checkout.js', __FILE__), ['scripts'], "1.0", true);
-        }
-        else {
-            wp_enqueue_script('input_card_sanitize', plugins_url('assets/js/input_card_sanitize.js', __FILE__), ['scripts'], "1.0", true);
-            wp_enqueue_script('advanced_paypal_checkout', plugins_url('assets/js/advanced_paypal_checkout.js', __FILE__), ['scripts'], "1.0", true);
+    if (get_integration_type() == "basic") {
+        
+        // Si la integrtación en básica, cargo los scripts básico
+
+        wp_enqueue_script('basic_paypal_checkout', plugins_url('assets/js/basic_paypal_checkout.js', __FILE__), ['rm_paypal_checkout_scripts'], "1.0", true);
+
+    }
+    else {
+
+        // Si la integración es avanzada, cargo los scripts que validan los campos de la tarjeta, también cargo los scripts avanzados
+
+        //wp_enqueue_script('input_card_sanitize', plugins_url('assets/js/input_card_sanitize.js', __FILE__), ['rm_paypal_checkout_scripts'], "1.0", true);
+        wp_enqueue_script('advanced_paypal_checkout', plugins_url('assets/js/advanced_paypal_checkout.js', __FILE__), ['rm_paypal_checkout_scripts'], "1.0", true);
+
+    }
+
+}
+
+// Intercepta scripts para modificar sus tributos
+function add_attrs_to_scripts($tag, $handle, $src) {
+
+    // Los scripts que queremos interceptar
+    $scripts = array('paypal_sdk');
+
+    if (in_array($handle, $scripts)) {
+        
+        if ("paypal_sdk") {
+
+            // En este caso, paypal requiere también que en el script se le pase el token del cliente actual, entonces genero ese token usando la clase PayPal en classes/PayPal.php, como pueden haber errores (Como que el client_id o client_secret no sean correctos) encierro todo dentro de un try...catch, al script de advanced_paypal_checkout le paso los resultados de la generación de ese token
 
             try {
                 $paypal = new PayPal();
@@ -115,18 +143,35 @@ function add_plugin_scripts() {
                 $client_token = null;
                 $error = $e->getMessage();
             }
-
-            wp_localize_script('advanced_paypal_checkout', 'paypal', array(
+    
+            wp_localize_script('advanced_paypal_checkout', 'server_messages', array(
                 //'url'    => rest_url( '/delete/cart' ),
                 'nonce'  => wp_create_nonce("wp_rest"),
-                'client_token' => $client_token,
                 'error' => $error,
                 'is_admin' => true // TODO: Investigar como verificar si un usuario es admin, is_admin() no funcionó
-
             ));
+            
+            $script = '<script type="text/javascript" src="' . $src . '" data-client-token="' . $client_token .  '"></script>' . "\n";
         }
+        
+        return $script;
+
     }
 
+    return $tag;
+}
+
+
+// Añade los assets del plugin
+function add_plugin_assets() {
+
+    global $calledPluginScripts;
+
+    if (!$calledPluginScripts) {
+        $calledPluginScripts = true;
+        add_plugin_styles();
+        add_plugin_scripts();
+    }
 
 }
 
@@ -278,7 +323,7 @@ function get_integration_type() {
 // Crea el shortcode para insertar el formulario de cobro
 function rm_add_paypal_form($attrs) {
 
-    add_plugin_scripts();
+    add_plugin_assets();
 
     if (get_integration_type() == "advanced") {
         $form_attrs = $attrs["attrs"] ?? "class='col-12 col-sm-6 mb-4'";
@@ -293,7 +338,7 @@ function rm_add_paypal_form($attrs) {
 // Crea el shortcode para insertar el carrito de compras
 function rm_add_paypal_cart($attrs) {
 
-    add_plugin_scripts();
+    add_plugin_assets();
 
     if (get_integration_type() == "advanced") {
         $cart_attrs = $attrs["attrs"] ?? "class='col-12 col-sm-6 mb-4'";
@@ -308,7 +353,7 @@ function rm_add_paypal_cart($attrs) {
 // Crea el shortcode para insertar el carrito de compras junto al formulario de cobro
 function rm_add_paypal_shipment($attrs) {
 
-    add_plugin_scripts();
+    add_plugin_assets();
 
     if (get_integration_type() == "advanced") {
         $ship_attrs = $attrs["attrs"] ?? "class='col-12 col-sm-6 mb-4'";
@@ -323,7 +368,7 @@ function rm_add_paypal_shipment($attrs) {
 // Crea el shortcode para insertar el carrito de compras junto al formulario de cobro
 function rm_add_paypal_all($attrs) {
 
-    add_plugin_scripts();
+    add_plugin_assets();
 
     if (get_integration_type() == "advanced") {
 
@@ -341,7 +386,7 @@ function rm_add_paypal_all($attrs) {
 // Crea el shortcode para renderizar los botones de PayPal
 function rm_add_paypal_render_buttons($attrs) {
 
-    add_plugin_scripts();
+    add_plugin_assets();
     
     if (get_integration_type() == "basic") {
 
@@ -361,6 +406,7 @@ require("functions/ajax_endpoints.php");
 add_action('admin_enqueue_scripts', 'load_assets');
 add_action('admin_menu', 'custom_menu');
 add_action('admin_post_rm_paypal_checkout_saving', 'save_paypal_keys');
+add_filter('script_loader_tag', 'add_attrs_to_scripts', 10, 3);
 
 if(!is_admin()) {
 
