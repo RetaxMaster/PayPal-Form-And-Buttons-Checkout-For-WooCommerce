@@ -1,59 +1,50 @@
 $(document).ready(function(){
 
-    var isSandbox = true;
-    var isBasic = true;
+    var isSandbox = admin.production_mode != "checked";
+    var PayPalCheckout = admin.paypal_checkout == "checked";
+    var PayPalPlusMexicoBrazil = admin.paypal_plus_mexico_brazil == "checked";
+    var PaymentExperience = admin.payment_experience == "checked";
 
     // Muestra u oculta los paneles dependiendo de la configuración del usuario
     function togglePanels() {
 
         // Oculto todos
-        $(".advanced-integration").addClass("hidden");
-        $(".basic-integration").addClass("hidden");
         $(".sandbox").addClass("hidden");
         $(".production").addClass("hidden")
+        $(".client-id").addClass("hidden");
+        $(".client-secret").addClass("hidden");
         
         // Dependiendo del modo muestro los paneles
-        if (isSandbox && isBasic) // Sandbox básica
-                $(".sandbox.basic-integration").removeClass("hidden");
-        else if(isSandbox && !isBasic) // Sandbox avanzada
-                $(".sandbox.advanced-integration").removeClass("hidden");
-        else if(!isSandbox && isBasic) // Producción básica
-                $(".production.basic-integration").removeClass("hidden");
-        else if(!isSandbox && !isBasic) // Producción avanzada
-                $(".production.advanced-integration").removeClass("hidden");
+        if (isSandbox) // Sandbox básica
+            $(".sandbox").removeClass("hidden");
+        else 
+            $(".production").removeClass("hidden");
+
+        if(PayPalCheckout || PayPalPlusMexicoBrazil || PaymentExperience) $(".client-id").removeClass("hidden");
+
+        if(PayPalPlusMexicoBrazil || PaymentExperience) $(".client-secret").removeClass("hidden");
 
     }
 
-    // Desactiva la integración avanzada al clicar la básica
-    $("#BasicIntegration").on("click", function(){
-        
-        if (this.checked) {
-            $("#AdvancedIntegration").prop("checked", false);
-            isBasic = true;
-        }
-
+    $("#PayPalCheckout").on("click", function(){
+        PayPalCheckout = this.checked;
         togglePanels();
-
     });
 
-    // Desactiva la integración básica al clicar la avanzada
-    $("#AdvancedIntegration").on("click", function(){
-        
-        if (this.checked) {
-            $("#BasicIntegration").prop("checked", false);
-            isBasic = false;
-        }
-
+    $("#PayPalPlusMexicoBrazil").on("click", function(){
+        PayPalPlusMexicoBrazil = this.checked;
         togglePanels();
-            
+    });
+
+    $("#PaymentExperience").on("click", function(){
+        PaymentExperience = this.checked;
+        togglePanels();
     });
 
     // Cambia entre el modo de pruebas y el modo de producción
     $("#InProduction").on("click", function(){
-        
         isSandbox = !this.checked;
         togglePanels();
-            
     });
 
 });

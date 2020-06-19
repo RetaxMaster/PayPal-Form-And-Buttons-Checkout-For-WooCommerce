@@ -42,7 +42,9 @@
                 <div class="button-container">
                     <button class="btn btn-primary next-button" type="submit" id="pay-button">Confirmar pedido</button>
                 </div>
-
+                
+                <?php if(self::$options->isPayPalCheckout): ?>
+                
                 <div class="or">
                     <span class="dashed"></span>
                     <span>o</span>
@@ -50,6 +52,8 @@
                 </div>
 
                 <div id="rm_paypal_buttons"></div>
+                
+                <?php endif; ?>
 
             </form>
         </div>

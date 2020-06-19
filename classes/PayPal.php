@@ -1,19 +1,24 @@
 <?php
 
+namespace Classes;
+
 class PayPal {
 
     private static $APIDomain;
     private static $endpoints;
     private static $accessToken;
+    private static $options;
 
     public function __construct() {
-
-        // Hago la autenticación para el ambiente en el que estoy trabajando
-        self::setupEnvironment();
 
         // Manda a generar el token para el comprador
         $this->generateClientToken();
 
+    }
+
+    // Establece las opciones marcadas por el usuario (Se le debe pasar el objeto de opciones ya establecidas en la clase Rm_PayPal_Checkout)
+    private static function set_options(Options $options) {
+        self::$options = $options;
     }
 
     // Manda una cURL con los parámetros especificados
@@ -69,8 +74,7 @@ class PayPal {
 
     // Verifica si el usuario está usando el entorno de pruebas o de producción
     public static function isInProduction() : bool {
-        $production_mode = get_option("rm_paypal_checkout_production_mode", "");
-        return $production_mode == "checked";
+        return self::$options->isProduction;
     }
 
     // Establece la URL a la cual se enviarán las solicitudes a la API de PayPal
@@ -85,7 +89,8 @@ class PayPal {
 
         self::$endpoints = array(
             "get_access_token" => $base . "/v1/oauth2/token",
-            "get_client_token" => $base . "/v1/identity/generate-token"
+            "get_client_token" => $base . "/v1/identity/generate-token",
+            "get_payment_request" => $base . "/v1/payments/payment"
         );
 
     }
@@ -94,12 +99,12 @@ class PayPal {
     private static function getPayPalCredentials() : array {
         
         if (self::isInProduction()) {
-            $client_id = get_option("rm_paypal_checkout_p_clientId", "");
-            $client_secret = get_option("rm_paypal_checkout_p_secret", "");
+            $client_id = self::$options->production_client_id;
+            $client_secret = self::$options->production_client_secret;
         }
         else {
-            $client_id = get_option("rm_paypal_checkout_s_clientId", "");
-            $client_secret = get_option("rm_paypal_checkout_s_secret", "");
+            $client_id = self::$options->sandbox_client_id;
+            $client_secret = self::$options->sandbox_client_secret;
         }
 
         return array(
@@ -142,8 +147,12 @@ class PayPal {
 
     }
 
-    // Establece las configuraciones iniciales dependiendo del ambiente que el usuario haya elegido
-    public static function setupEnvironment() : void {
+    // Establece las configuraciones iniciales dependiendo del ambiente que el usuario haya elegido (Se le debe pasar el objeto de opciones ya establecidas en la clase Rm_PayPal_Checkout)
+    public static function setupEnvironment(Options $options) : void {
+
+        // Establece las opciones marcadas por el usuario
+        self::set_options($options);
+
         // Establece la URL base para mandar las solicitudes
         self::setAPIDomain();
 

@@ -8,10 +8,10 @@
         </button>
     </div><br>
     <?php endif; ?>
+
+    <h1>Configuración de PayPal</h1><br>
     
     <div class="card config-container">
-        
-        <h1>Configuración de PayPal</h1>
 
         <form action="<?= esc_html( admin_url( 'admin-post.php' ) ); ?>" method="post">
 
@@ -23,16 +23,24 @@
 
                 <legend>Tipo de integración</legend>
 
+                <p class="text-muted">Primero tienes que elegir qué tipo de integración te gustaría tener en tu página, debajo de cada una te damos una pequeña descripción, si deseas más información de cada una te recomendamos mirar los <a href="https://developer.paypal.com/docs/" target="_blank">tipos de integración</a> de PayPal, ten en cuenta que cada tipo de integración dependerá del país en el que te encuentres.</p><br>
+
                 <div class="custom-control custom-switch mb-3">
-                    <input type="checkbox" class="custom-control-input" id="BasicIntegration" name="BasicIntegration" aria-describedby="basicIntegrationHelp" <?= $basic_integration ?>>
-                    <label class="custom-control-label" for="BasicIntegration">Integración básica</label>
-                    <small id="basicIntegrationHelp" class="form-text text-muted">Esta integración te permite usar los botones y el formulario de pago por defecto de PayPal</small>
+                    <input type="checkbox" class="custom-control-input" id="PayPalCheckout" name="PayPalCheckout" aria-describedby="PayPalCheckoutHelp" <?= $PayPalCheckout ?>>
+                    <label class="custom-control-label" for="PayPalCheckout">PayPal Checkout</label>
+                    <small id="PayPalCheckoutHelp" class="form-text text-muted"><i>(Recomendado por defecto)</i> Añade los botones de PayPal a tu sitio web y permite que tus clientes puedan pagar con su cuenta de PayPal, PayPal Credit o usando una tarjeta con el formulario de PayPal.</small>
                 </div>
 
                 <div class="custom-control custom-switch mb-3">
-                    <input type="checkbox" class="custom-control-input" id="AdvancedIntegration" name="AdvancedIntegration" aria-describedby="advancedIntegrationHelp" <?= $advanced_integration ?>>
-                    <label class="custom-control-label" for="AdvancedIntegration">Integración avanzada</label>
-                    <small id="advancedIntegrationHelp" class="form-text text-muted">Con esta integración podrás usar nuestro formulario personalizado de cobro mediante el uso de shortcodes</small>
+                    <input type="checkbox" class="custom-control-input" id="PayPalPlusMexicoBrazil" name="PayPalPlusMexicoBrazil" aria-describedby="PayPalPlusMexicoBrazilHelp" <?= $PayPalPlusMexicoBrazil ?>>
+                    <label class="custom-control-label" for="PayPalPlusMexicoBrazil">PayPal Plus (Mexico and Brazil)</label>
+                    <small id="PayPalPlusMexicoBrazilHelp" class="form-text text-muted">Añade un formulario de tarjetas creado por PayPal en tu sitio web, realiza el cobro sin ventanas emergentes y sin salir de tu página.</small>
+                </div>
+
+                <div class="custom-control custom-switch mb-3">
+                    <input type="checkbox" class="custom-control-input" id="PaymentExperience" name="PaymentExperience" aria-describedby="PaymentExperienceHelp" <?= $PaymentExperience ?>>
+                    <label class="custom-control-label" for="PaymentExperience">Payment Experience</label>
+                    <small id="PaymentExperienceHelp" class="form-text text-muted">Redirige a tus clientes a una página de pago de PayPal personalizada para tu negocio con tu nombre y logo.</small>
                 </div>
 
                 <div class="custom-control custom-switch mb-3">
@@ -44,102 +52,49 @@
             </fieldset>
 
             <hr>
+            
+            <div class="sandbox <?= $show_sandbox ?>">    
 
-            <fieldset id="basic-config-sandbox" class="sandbox basic-integration <?= $hide_sandbox_basic ?>">
+                <fieldset id="authenticate" class="authenticate">
 
-                <legend>Autenticación</legend>
+                    <legend>Autenticación para el modo de pruebas</legend>
 
-                <div class="form-group">
-                    <label for="sandboxAccount">Sandbox Account:</label>
-                    <input type="text" class="form-control" id="sandboxAccount" name="sandboxAccount" aria-describedby="sandboxAccountHelp" placeholder="Sandbox Account" value="<?= $sandbox_basic_account ?>">
-                    <small id="sandboxAccountHelp" class="form-text text-muted">Puedes obtenerlo en <a href="https://developer.paypal.com/developer/applications/" target="_blank">tus aplicaciones</a> de prueba creadas.</small>
-                </div>
+                    <div class="form-group client-id <?= $show_client_id ?>">
+                        <label for="clientId">Client ID:</label>
+                        <input type="text" class="form-control" id="clientId" name="clientId" aria-describedby="clientIdHelp" placeholder="Client ID" value="<?= $sandbox_client_id ?>">
+                        <small id="clientIdHelp" class="form-text text-muted">Puedes obtenerlo en <a href="https://developer.paypal.com/developer/applications/" target="_blank">tus aplicaciones</a> de prueba creadas.</small>
+                    </div>
 
-                <div class="form-group">
-                    <label for="clientId">Client ID:</label>
-                    <input type="text" class="form-control" id="clientId" name="clientId" aria-describedby="clientIdHelp" placeholder="Client ID" value="<?= $sandbox_basic_client_id ?>">
-                    <small id="clientIdHelp" class="form-text text-muted">Puedes obtenerlo en <a href="https://developer.paypal.com/developer/applications/" target="_blank">tus aplicaciones</a> de prueba creadas.</small>
-                </div>
+                    <div class="form-group client-secret <?= $show_client_secret ?>">
+                        <label for="secret">Secret:</label>
+                        <input type="password" class="form-control" id="secret" name="secret" aria-describedby="secretHelp" placeholder="Secret" value="<?= $sandbox_secret ?>">
+                        <small id="secretHelp" class="form-text text-muted">Puedes obtenerlo en <a href="https://developer.paypal.com/developer/applications/" target="_blank">tus aplicaciones</a> de prueba creadas.</small>
+                    </div>
 
-                <div class="form-group">
-                    <label for="secret">Secret:</label>
-                    <input type="password" class="form-control" id="secret" name="secret" aria-describedby="secretHelp" placeholder="Secret" value="<?= $sandbox_basic_secret ?>">
-                    <small id="secretHelp" class="form-text text-muted">Puedes obtenerlo en <a href="https://developer.paypal.com/developer/applications/" target="_blank">tus aplicaciones</a> de prueba creadas.</small>
-                </div>
+                </fieldset>
 
-            </fieldset>
+            </div>
+            
+            <div class="production <?= $show_production ?>">    
+                <fieldset id="p_authenticate" class="authenticate">
 
-            <fieldset id="advanced-config-sandbox" class="sandbox advanced-integration <?= $hide_sandbox_advanced ?>">
+                    <legend>Autenticación para el modo de producción</legend>
 
-                <legend>Credenciales API</legend>
+                    <div class="form-group client-id <?= $show_client_id ?>">
+                        <label for="p_clientId">Client ID:</label>
+                        <input type="text" class="form-control" id="p_clientId" name="p_clientId" aria-describedby="p_clientIdHelp" placeholder="Client ID" value="<?= $production_client_id ?>">
+                        <small id="p_clientIdHelp" class="form-text text-muted">Puedes obtenerlo en <a href="https://developer.paypal.com/developer/applications/" target="_blank">tus aplicaciones</a> creadas.</small>
+                    </div>
 
-                <div class="form-group">
-                    <label for="username">Username:</label>
-                    <input type="text" class="form-control" id="username" name="username" aria-describedby="usernameHelp" placeholder="Username" value="<?= $sandbox_advanced_username ?>">
-                    <small id="usernameHelp" class="form-text text-muted">Puedes obtenerlo en <a href="https://developer.paypal.com/developer/accounts/" target="_blank">tus cuentas</a> de prueba creadas.</small>
-                </div>
+                    <div class="form-group client-secret <?= $show_client_secret ?>">
+                        <label for="p_secret">Secret:</label>
+                        <input type="password" class="form-control" id="p_secret" name="p_secret" aria-describedby="p_secretHelp" placeholder="Secret" value="<?= $production_secret ?>">
+                        <small id="p_secretHelp" class="form-text text-muted">Puedes obtenerlo en <a href="https://developer.paypal.com/developer/applications/" target="_blank">tus aplicaciones</a> creadas.</small>
+                    </div>
 
-                <div class="form-group">
-                    <label for="password">Password:</label>
-                    <input type="password" class="form-control" id="password" name="password" aria-describedby="passwordHelp" placeholder="Password" value="<?= $sandbox_advanced_password ?>">
-                    <small id="passwordHelp" class="form-text text-muted">Puedes obtenerlo en <a href="https://developer.paypal.com/developer/accounts/" target="_blank">tus cuentas</a> de prueba creadas.</small>
-                </div>
+                </fieldset>
+            </div>
 
-                <div class="form-group">
-                    <label for="signature">Signature:</label>
-                    <input type="password" class="form-control" id="signature"  name="signature" aria-describedby="signatureHelp" placeholder="Signature" value="<?= $sandbox_advanced_signature ?>">
-                    <small id="signatureHelp" class="form-text text-muted">Puedes obtenerlo en <a href="https://developer.paypal.com/developer/accounts/" target="_blank">tus cuentas</a> de prueba creadas.</small>
-                </div>
-
-            </fieldset>
-
-            <fieldset id="basic-config" class="production basic-integration <?= $hide_production_basic ?>">
-
-                <legend>Autenticación</legend>
-
-                <div class="form-group">
-                    <label for="p-Account">Cuenta:</label>
-                    <input type="text" class="form-control" id="p-Account" name="p-Account" aria-describedby="p-AccountHelp" placeholder="Cuenta" value="<?= $production_basic_account ?>">
-                    <small id="p-AccountHelp" class="form-text text-muted">Puedes obtenerlo en <a href="https://developer.paypal.com/developer/applications/" target="_blank">tus aplicaciones</a> creadas.</small>
-                </div>
-
-                <div class="form-group">
-                    <label for="p-clientId">Client ID:</label>
-                    <input type="text" class="form-control" id="p-clientId" name="p-clientId" aria-describedby="p-clientIdHelp" placeholder="Client ID" value="<?= $production_basic_client_id ?>">
-                    <small id="p-clientIdHelp" class="form-text text-muted">Puedes obtenerlo en <a href="https://developer.paypal.com/developer/applications/" target="_blank">tus aplicaciones</a> creadas.</small>
-                </div>
-
-                <div class="form-group">
-                    <label for="p-secret">Secret:</label>
-                    <input type="password" class="form-control" id="p-secret" name="p-secret" aria-describedby="p-secretHelp" placeholder="Secret" value="<?= $production_basic_secret ?>">
-                    <small id="p-secretHelp" class="form-text text-muted">Puedes obtenerlo en <a href="https://developer.paypal.com/developer/applications/" target="_blank">tus aplicaciones</a> de prueba creadas.</small>
-                </div>
-
-            </fieldset>
-
-            <fieldset id="advanced-config" class="production advanced-integration <?= $hide_production_advanced ?>">
-
-                <legend>Credenciales API</legend>
-
-                <div class="form-group">
-                    <label for="p-username">Username:</label>
-                    <input type="text" class="form-control" id="p-username" name="p-username" aria-describedby="p-usernameHelp" placeholder="Username" value="<?= $production_advanced_username ?>">
-                    <small id="p-usernameHelp" class="form-text text-muted">Puedes obtenerlo en <a href="https://developer.paypal.com/developer/accounts/" target="_blank">tus cuentas</a> creadas.</small>
-                </div>
-
-                <div class="form-group">
-                    <label for="p-password">Password:</label>
-                    <input type="password" class="form-control" id="p-password" name="p-password" aria-describedby="p-passwordHelp" placeholder="Password" value="<?= $production_advanced_password ?>">
-                    <small id="p-passwordHelp" class="form-text text-muted">Puedes obtenerlo en <a href="https://developer.paypal.com/developer/accounts/" target="_blank">tus cuentas</a> creadas.</small>
-                </div>
-
-                <div class="form-group">
-                    <label for="p-signature">Signature:</label>
-                    <input type="password" class="form-control" id="p-signature"  name="p-signature" aria-describedby="p-signatureHelp" placeholder="Signature" value="<?= $production_advanced_signature ?>">
-                    <small id="p-signatureHelp" class="form-text text-muted">Puedes obtenerlo en <a href="https://developer.paypal.com/developer/accounts/" target="_blank">tus cuentas</a> creadas.</small>
-                </div>
-
-            </fieldset>
 
             <div class="button-container align-right">
                 <button type="submit" name="submit" id="submit" class="btn btn-primary">Guardar cambios</button>
