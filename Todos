@@ -1,0 +1,6 @@
+Validar para cuando esten los shipment, cart y payment en una misma página entonces se hace el paymnt request con Ajax (cuando se usa el shortcode all o cuando se ponen los 3 shortcodes, esto se haria con un nuevo archivo de scripts en el cual me diga cuales están activos, entonces a la función add_plugin_assets se le puede pasar el valor del shortcode usado para lograr eso)
+Si no están en la misma página se hace el request normal al cargar la página de pago
+
+Poner short codes para poder agregar diferentes estructuras de los formularios
+
+Poner opciones para decidir si el shortcode deberá estar encerrado en un contenedor row de bootstrap
